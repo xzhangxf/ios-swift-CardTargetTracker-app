@@ -1,13 +1,13 @@
 //
-//  ViewController.swift
-//  ios-swift-CardTargetTracker-app
+//  mainViewController.swift
+//  Card Target Tracker
 //
 //  Created by Xufeng Zhang on 23/10/25.
 //
 
 import UIKit
 
-class ViewController: UIViewController {
+class mainViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
