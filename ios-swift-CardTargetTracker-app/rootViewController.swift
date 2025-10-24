@@ -16,7 +16,7 @@ class rootViewController: UIViewController {
         
      
         
-        let Cards = UINavigationController(rootViewController: HomeViewController())
+        let Cards = UINavigationController(rootViewController: CardsViewController())
         Cards.tabBarItem = UITabBarItem(title: "Cards", image: UIImage(systemName: "creditcard"), selectedImage: nil)
 
         let daily = UINavigationController(rootViewController: DailyViewController())
