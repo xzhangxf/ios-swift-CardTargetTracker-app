@@ -72,3 +72,4 @@ People want to start using your app immediately, not learn about it.”
 so if the app If your app is self-explanatory and has a clear empty state (like “Add your first card to get started”), you don’t need a separate onboarding flow.
 
 If your app requires permissions (camera, location, notifications), onboarding is useful to explain why before the system prompt appears.
+

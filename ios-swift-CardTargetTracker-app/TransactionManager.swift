@@ -17,9 +17,21 @@ class TransactionManager {
 
     private var cards: [Card]
     private var transactions: [Transaction]
-
+    
+    func allCards() -> [Card] {
+        cards
+    }
+    
+    func allTransactions() -> [Transaction] {
+        transactions
+    }
+    
     func addCard(_ card: Card) {
         cards.append(card); persist()
+    }
+    
+    func transactions(forCard id: UUID) -> [Transaction] {
+        transactions.filter { $0.cardId == id }
     }
     
     func updateCard(_ card: Card) {
@@ -30,6 +42,14 @@ class TransactionManager {
         cards.removeAll { $0.id == id }
         transactions.removeAll { $0.cardId == id }
         persist()
+    }
+    
+    func getCard(id: UUID) -> Card? {
+        return cards.first(where: { $0.id == id })
+    }
+    
+    func getCards() -> [Card] {
+        return cards
     }
     
     func addTransaction(_ t: Transaction) {
