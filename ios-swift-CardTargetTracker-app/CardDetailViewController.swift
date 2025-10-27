@@ -55,6 +55,11 @@ class CardDetailViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         var cfg = UIListContentConfiguration.valueCell()
         cfg.text = Money.toString(cents: t.amountCents)
+        let df = DateFormatter()
+        df.dateStyle = .medium; df.timeStyle = .none
+        cfg.secondaryText = "\(t.category.rawValue.capitalized) · \(df.string(from: t.date))"
+        cell.contentConfiguration = cfg
+        return cell
         
     }
     
@@ -68,8 +73,4 @@ class CardDetailViewController: UITableViewController {
         let vc = AddCardViewController(cardToEdit: card)
         present(UINavigationController(rootViewController: vc), animated: true)
     }
-}
-    
-    
-    
 }
