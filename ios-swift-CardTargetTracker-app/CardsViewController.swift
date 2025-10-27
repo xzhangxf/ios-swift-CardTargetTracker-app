@@ -15,7 +15,7 @@ class CardsViewController: UITableViewController {
         super.viewDidLoad()
         
         title = "Cards"
-        tableView.register(UITableView.self, forCellReuseIdentifier: "cell")
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addCard))
         
     }

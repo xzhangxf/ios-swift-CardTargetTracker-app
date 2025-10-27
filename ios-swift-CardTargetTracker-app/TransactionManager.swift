@@ -11,7 +11,7 @@ class TransactionManager {
     static let shared = TransactionManager()
     
     private init() {
-        cards = StorageManager.shared.loadCards()!
+        cards = StorageManager.shared.loadCards() ?? []
         transactions = StorageManager.shared.loadTransactions()
     }
 

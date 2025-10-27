@@ -11,7 +11,7 @@ class CardDetailViewController: UITableViewController {
     
     
     private var card: Card
-    private var tx: [Transition] = []
+    private var tx: [Transaction] = []
     
     init(card: Card) {
         self.card = card
@@ -27,8 +27,8 @@ class CardDetailViewController: UITableViewController {
         tableView.register(UITableViewController.self, forCellReuseIdentifier: "cell")
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(onEdit))
         let addButton = UIButton(type: .system)
-        addButton.setTitle("Add Transition", for: .normal)
-        addButton.addTarget(self, action: #selector(onAddTransition), for: .touchUpInside)
+        addButton.setTitle("Add Transaction", for: .normal)
+        addButton.addTarget(self, action: #selector(onAddTransaction), for: .touchUpInside)
         tableView.tableFooterView = addButton
         addButton.frame = CGRect(x: 0, y: 0, width: tableView.bounds.width, height: 56)
     }
@@ -41,8 +41,7 @@ class CardDetailViewController: UITableViewController {
     
     
     private func reloadData() {
-        let all = TransactionManager.shared.transactions.filter{ $0.cardId == card.id}
-        tx = all.sorted{ $0.date > $1.date}
+        tx = TransactionManager.shared.transactions(forCard: card.id).sorted { $0.date > $1.date }
         tableView.reloadData()
     }
     
@@ -64,7 +63,7 @@ class CardDetailViewController: UITableViewController {
     }
     
     
-   @objc private func onAddTransition() {
+   @objc private func onAddTransaction() {
         let vc = AddTransactionViewController(cardId: card.id)
         present(UINavigationController(rootViewController: vc), animated: true)
     }
