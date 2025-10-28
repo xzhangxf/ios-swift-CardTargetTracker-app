@@ -119,8 +119,11 @@ class CardsViewController: UITableViewController {
 
         // configure values
         let card = data[indexPath.row]
-        let spent = TransactionManager.shared.spentForCard(card.id, in: PeriodCalculator.window(preset: .thisMonth))
-        let daysLeft = Self.daysLeftInMonth()
+        let window = BillingCycle.window(for: card)  // per-card accurate window
+        let spent = TransactionManager.shared.spentForCard(card.id, in: window)
+        let daysLeft = BillingCycle.daysLeft(for: card)
+//        let spent = TransactionManager.shared.spentForCard(card.id, in: PeriodCalculator.window(preset: .thisMonth))
+//        let daysLeft = Self.daysLeftInMonth()
         nameLabel.text = card.name
         daysLabel.text = "\(daysLeft) days left"
         amountsLabel.text = "\(Money.toString(cents: spent)) / \(Money.toString(cents: card.targetCents))"
@@ -129,7 +132,6 @@ class CardsViewController: UITableViewController {
         percentLabel.text = "\(Int(round(pct*100)))%"
         percentLabel.textColor = pct >= 1 ? .systemGreen : .systemBlue
         progress.progressTintColor = pct >= 1 ? .systemGray2 : .systemGreen
-
         return cell
     }
 
@@ -158,7 +160,6 @@ class CardsViewController: UITableViewController {
                                            to: calendar.startOfDay(for: endThisMonth)).day ?? 0
         return max(0, days + 1)
     }
-    
     
 }
 
