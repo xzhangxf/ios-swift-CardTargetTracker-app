@@ -24,7 +24,7 @@ class CardDetailViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = card.name
-        tableView.register(UITableViewController.self, forCellReuseIdentifier: "cell")
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(onEdit))
         let addButton = UIButton(type: .system)
         addButton.setTitle("Add Transaction", for: .normal)
@@ -59,7 +59,6 @@ class CardDetailViewController: UITableViewController {
         cfg.secondaryText = "\(t.category.rawValue.capitalized) · \(df.string(from: t.date))"
         cell.contentConfiguration = cfg
         return cell
-        
     }
     
     
@@ -70,6 +69,7 @@ class CardDetailViewController: UITableViewController {
 
     @objc private func onEdit() {
         let vc = AddCardViewController(cardToEdit: card)
+        
         present(UINavigationController(rootViewController: vc), animated: true)
     }
 }

@@ -12,7 +12,7 @@ final class DailyViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Daily Spending"
+        title = "Date"
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
     }
     override func viewWillAppear(_ animated: Bool) {

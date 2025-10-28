@@ -12,7 +12,7 @@ final class CategoriesViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Spending by Category"
+        title = "Category"
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
     }
     override func viewWillAppear(_ animated: Bool) {

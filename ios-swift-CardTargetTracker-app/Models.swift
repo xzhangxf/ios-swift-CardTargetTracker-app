@@ -27,7 +27,7 @@ enum Category: String, Codable, CaseIterable{
     case diningAndFoodDelivery
     case groceriesAndSupermarkets
     case onlineShopping
-    case transoirtAndRIdeHailing
+    case transportAndRIdeHailing
     case utiltiesAndPhoneBills
     case entertaimentAndStreaming
     case publicTransport
