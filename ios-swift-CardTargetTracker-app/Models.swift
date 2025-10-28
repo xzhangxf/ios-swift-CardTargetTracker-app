@@ -99,6 +99,7 @@ enum Category: String, Codable, CaseIterable{
     case insuranceAndEducationFees
     case foreignCurrencyOrOverseasSpend
     case HotelsAndFlights
+    case others
 }
 
 struct Transaction: Codable, Hashable, Identifiable {

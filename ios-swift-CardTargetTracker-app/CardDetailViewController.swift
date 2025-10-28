@@ -31,6 +31,7 @@ class CardDetailViewController: UITableViewController {
         addButton.addTarget(self, action: #selector(onAddTransaction), for: .touchUpInside)
         tableView.tableFooterView = addButton
         addButton.frame = CGRect(x: 0, y: 0, width: tableView.bounds.width, height: 56)
+        tableView.tableFooterView = addButton
     }
     
     
@@ -58,9 +59,30 @@ class CardDetailViewController: UITableViewController {
         df.dateStyle = .medium; df.timeStyle = .none
         cfg.secondaryText = "\(t.category.rawValue.capitalized) · \(df.string(from: t.date))"
         cell.contentConfiguration = cfg
+        cell.accessoryType = .disclosureIndicator
         return cell
     }
     
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let t = tx[indexPath.row]
+        let vc = TransactionDetailViewController(transaction: t)
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    
+    override func tableView(_ tableView: UITableView,
+                            trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath)
+    -> UISwipeActionsConfiguration? {
+        let delete = UIContextualAction(style: .destructive, title: "Delete") { _, _, done in
+            let id = self.tx[indexPath.row].id
+            TransactionManager.shared.deleteTransaction(id: id)
+            self.tx.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+            done(true)
+        }
+        return UISwipeActionsConfiguration(actions: [delete])
+    }
+
     
    @objc private func onAddTransaction() {
         let vc = AddTransactionViewController(cardId: card.id)
