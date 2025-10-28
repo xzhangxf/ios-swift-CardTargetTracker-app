@@ -139,16 +139,27 @@ class CardsViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         show(CardDetailViewController(card: data[indexPath.row]), sender: self)
     }
-
+    
+    
+    private func reloadData() {
+        data = StorageManager.shared.loadCards() ?? []
+        tableView.reloadData()
+    }
+    
     @objc private func addCard() {
         let vc = AddCardViewController()
+        
+        vc.onCardSaved = { [weak self] in
+            self?.reloadData()
+        }
+        
         if let sheet = vc.sheetPresentationController {
             sheet.detents = [.medium(), .large()]
             sheet.prefersGrabberVisible = true
         }
-//        let nav = UINavigationController(rootViewController: vc)
+        let nav = UINavigationController(rootViewController: vc)
 //        present(nav, animated: true)
-        present(UINavigationController(rootViewController: vc), animated: true)
+        present(nav, animated: true)
     }
     
     private static func daysLeftInMonth(calendar: Calendar = .current) -> Int {
@@ -162,4 +173,9 @@ class CardsViewController: UITableViewController {
     }
     
 }
+
+
+//TODO: add the edit button in the navagion bar to sawp left to delet and to tap on top to edit the card same foe the transacation
+
+//TODO: change the add card to the strart day and enter the cycle by hand by defalu is 30 days
 

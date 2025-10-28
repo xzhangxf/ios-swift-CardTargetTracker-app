@@ -25,7 +25,22 @@ class CardDetailViewController: UITableViewController {
         super.viewDidLoad()
         title = card.name
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(onEdit))
+        let addButton1 = UIButton(type: .system)
+        addButton1.setImage(UIImage(systemName: "plus"), for: .normal)
+        addButton1.tintColor = .systemBlue
+        addButton1.frame = CGRect(x: 0, y: 0, width: 32, height: 32)
+        addButton1.addTarget(self, action: #selector(onAddTransaction), for: .touchUpInside)
+
+        // Put custom button into the nav bar
+        let add = UIBarButtonItem(customView: addButton1)
+
+        let edit = UIBarButtonItem(title: "Edit",
+                                   style: .plain,
+                                   target: self,
+                                   action: #selector(onEdit))
+        add.tintColor = .systemBlue
+        navigationItem.rightBarButtonItems = [add, edit]
+//        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(onEdit))
         let addButton = UIButton(type: .system)
         addButton.setTitle("Add Transaction", for: .normal)
         addButton.addTarget(self, action: #selector(onAddTransaction), for: .touchUpInside)
@@ -86,6 +101,9 @@ class CardDetailViewController: UITableViewController {
     
    @objc private func onAddTransaction() {
         let vc = AddTransactionViewController(cardId: card.id)
+       vc.onTransactionSaved = { [weak self] in
+           self?.reloadData() 
+       }
         present(UINavigationController(rootViewController: vc), animated: true)
     }
 

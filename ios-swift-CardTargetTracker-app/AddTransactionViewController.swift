@@ -12,6 +12,8 @@ class AddTransactionViewController: UITableViewController {
     // MARK: - Init
     private let cardId: UUID
     private var editingTransaction: Transaction?
+    var onTransactionSaved: (() -> Void)?
+
 
     init(cardId: UUID, editingTransaction: Transaction? = nil) {
         self.cardId = cardId
@@ -173,19 +175,34 @@ class AddTransactionViewController: UITableViewController {
             )
             TransactionManager.shared.addTransaction(tx)
         }
+        onTransactionSaved?()
         dismiss(animated: true)
     }
 
+//    private func presentDatePicker() {
+//        let picker = DatePickerSheetViewController()
+//        picker.initialDate = selectedDate
+//        picker.modalPresentationStyle = .pageSheet
+//        picker.onPicked = { [weak self] date in
+//            self?.selectedDate = date
+//            self?.updateDateButtonTitle()
+//        }
+//        present(picker, animated: true)
+//    }
+    
     private func presentDatePicker() {
-        let picker = DatePickerSheetViewController()
-        picker.initialDate = selectedDate
-        picker.modalPresentationStyle = .pageSheet
-        picker.onPicked = { [weak self] date in
-            self?.selectedDate = date
-            self?.updateDateButtonTitle()
+        let pickerVC = DatePickerSheetViewController()
+        pickerVC.initialDate = selectedDate
+        pickerVC.modalPresentationStyle = UIModalPresentationStyle.pageSheet  // <- explicit
+
+        pickerVC.onPicked = { [weak self] (date: Date) in                     // <- typed
+            guard let self = self else { return }
+            self.selectedDate = date
+            self.updateDateButtonTitle()
         }
-        present(picker, animated: true)
+        present(pickerVC, animated: true)
     }
+
 
     // MARK: - Helpers
     private func styleDateButton() {
@@ -279,6 +296,8 @@ private final class CategoryPillCell: UICollectionViewCell {
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     func configure(text: String) { label.text = text }
+    
+    
 
     private func applyStyle() {
         if isSelected {

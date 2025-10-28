@@ -55,7 +55,7 @@ class TransactionDetailViewController: UITableViewController, UIPickerViewDataSo
         }
 
         // Date
-        datePicker.datePickerMode = .dateAndTime
+        datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .inline
         datePicker.date = transaction.date
 

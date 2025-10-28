@@ -8,6 +8,9 @@
 import UIKit
 
 final class AddCardViewController: UITableViewController {
+    
+    
+    var onCardSaved: (() -> Void)?
 
     // MARK: - UI: Basics
     private let nameField = UITextField()
@@ -142,7 +145,7 @@ final class AddCardViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         switch Section(rawValue: section)! {
         case .basics: return "Basics"
-        case .cycle: return "Spending Cycle"
+        case .cycle: return "Bill Cycle"
         case .reminder: return "Reminders"
         }
     }
@@ -487,6 +490,7 @@ final class AddCardViewController: UITableViewController {
             )
             TransactionManager.shared.addCard(newCard)
         }
+        onCardSaved?()
         dismiss(animated: true)
     }
 
