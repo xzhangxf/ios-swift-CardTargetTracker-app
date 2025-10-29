@@ -72,6 +72,12 @@ class TransactionManager {
         }
     }
     
+    func overwriteAll(cards newCards: [Card], transactions newTx: [Transaction]) {
+        cards = newCards
+        transactions = newTx
+        persist()
+    }
+    
     @discardableResult
     func deleteAllData() -> (cards: Int, transactions: Int) {
         let removedCards = cards.count
@@ -128,4 +134,54 @@ class TransactionManager {
     func spentForCard(_ cardId: UUID, in window: DateInterval?) -> Int {
         transactions(in: window).filter { $0.cardId == cardId }.reduce(0) { $0 + $1.amountCents }
     }
+    
+    
+    @discardableResult
+    func mergeImport(cards importedCards: [Card],
+                     transactions importedTx: [Transaction],
+                     normalizeDateToDayStart: Bool = true)
+    -> (addedCards: Int, updatedCards: Int, skippedCards: Int,
+        addedTx: Int, updatedTx: Int, skippedTx: Int, orphanTx: Int)
+    {
+        var cardIndex: [UUID: Int] = [:]
+        for (i, c) in cards.enumerated() { cardIndex[c.id] = i }
+        var addedCards = 0, updatedCards = 0, skippedCards = 0
+        for ic in importedCards {
+            if let idx = cardIndex[ic.id] {
+                cards[idx] = ic
+                updatedCards += 1
+            } else {
+                cards.append(ic)
+                cardIndex[ic.id] = cards.count - 1
+                addedCards += 1
+            }
+        }
+        var txIndex: [UUID: Int] = [:]
+        for (i, t) in transactions.enumerated() { txIndex[t.id] = i }
+
+        var addedTx = 0, updatedTx = 0, skippedTx = 0, orphanTx = 0
+        let cal = Calendar.current
+        for it in importedTx {
+            guard cardIndex[it.cardId] != nil else {
+                orphanTx += 1
+                continue
+            }
+            var txToStore = it
+            if normalizeDateToDayStart {
+                txToStore.date = cal.startOfDay(for: it.date)
+            }
+
+            if let idx = txIndex[txToStore.id] {
+                transactions[idx] = txToStore
+                updatedTx += 1
+            } else {
+                transactions.append(txToStore)
+                txIndex[txToStore.id] = transactions.count - 1
+                addedTx += 1
+            }
+        }
+        persist()
+        return (addedCards, updatedCards, skippedCards, addedTx, updatedTx, skippedTx, orphanTx)
+    }
+
 }

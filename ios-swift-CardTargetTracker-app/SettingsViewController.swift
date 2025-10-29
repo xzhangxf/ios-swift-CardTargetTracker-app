@@ -5,9 +5,8 @@
 //  Created by Xufeng Zhang on 27/10/25.
 //
 
-// [ADDED] SettingsViewController.swift
 import UIKit
-import UniformTypeIdentifiers
+import UniformTypeIdentifiers //needed for UTType.json
 
 final class SettingsViewController: UITableViewController, UIDocumentPickerDelegate {
 
@@ -73,7 +72,7 @@ final class SettingsViewController: UITableViewController, UIDocumentPickerDeleg
                 cell.accessoryType = .disclosureIndicator
             } else {
                 cfg.text = "Import JSON"
-                cfg.secondaryText = "Replace data from backup"
+                cfg.secondaryText = "Merge into existing data"
                 cell.accessoryType = .disclosureIndicator
             }
             cell.contentConfiguration = cfg
@@ -81,8 +80,8 @@ final class SettingsViewController: UITableViewController, UIDocumentPickerDeleg
         case .danger:
             cfg.text = "Clear All Data"
             cfg.secondaryText = "Delete all cards & transactions"
+            cfg.textProperties.color = .systemRed
             cell.contentConfiguration = cfg
-            cell.textLabel?.textColor = .systemRed
         }
 
         return cell
@@ -101,7 +100,6 @@ final class SettingsViewController: UITableViewController, UIDocumentPickerDeleg
         }
     }
 
-    // MARK: - Theme
     @objc private func onThemeChanged(_ seg: UISegmentedControl) {
         guard let sel = AppTheme(rawValue: seg.selectedSegmentIndex) else { return }
         ThemeManager.shared.current = sel
@@ -126,16 +124,30 @@ final class SettingsViewController: UITableViewController, UIDocumentPickerDeleg
             let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
             present(vc, animated: true)
         } catch {
-            toast("Write file failed.")
+            print("Write file failed.\(error)")
         }
     }
 
+//    private func importJSON() {
+//        let a = UIAlertController(title: "Import JSON?",
+//                                  message: "This will REPLACE all current cards and transactions.",
+//                                  preferredStyle: .alert)
+//        a.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+//        a.addAction(UIAlertAction(title: "Import", style: .destructive, handler: { _ in
+//            let picker = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.json], asCopy: true)
+//            picker.delegate = self
+//            picker.allowsMultipleSelection = false
+//            self.present(picker, animated: true)
+//        }))
+//        present(a, animated: true)
+//    }
+    
     private func importJSON() {
         let a = UIAlertController(title: "Import JSON?",
-                                  message: "This will REPLACE all current cards and transactions.",
+                                  message: "This will MERGE with existing cards and transactions.",
                                   preferredStyle: .alert)
         a.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        a.addAction(UIAlertAction(title: "Import", style: .destructive, handler: { _ in
+        a.addAction(UIAlertAction(title: "Import", style: .default, handler: { _ in
             let picker = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.json], asCopy: true)
             picker.delegate = self
             picker.allowsMultipleSelection = false
@@ -144,18 +156,31 @@ final class SettingsViewController: UITableViewController, UIDocumentPickerDeleg
         present(a, animated: true)
     }
 
+    
+
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         guard let url = urls.first else { return }
         do {
             let data = try Data(contentsOf: url)
             let backup = try JSONDecoder.importDecoder.decode(Backup.self, from: data)
-            TransactionManager.shared.overwriteAll(cards: backup.cards, transactions: backup.transactions)
+            let result = TransactionManager.shared.mergeImport(
+                cards: backup.cards,
+                transactions: backup.transactions,
+                normalizeDateToDayStart: true
+            )
+            // Notify other screens to refresh
             NotificationCenter.default.post(name: .dataStoreDidChange, object: nil)
-            toast("Imported \(backup.cards.count) cards, \(backup.transactions.count) transactions.")
+            let msg = """
+            Cards: +\(result.addedCards), updated \(result.updatedCards)
+            Transactions: +\(result.addedTx), updated \(result.updatedTx)
+            Orphan skipped: \(result.orphanTx)
+            """
+            toast(msg)
         } catch {
             toast("Import failed. Invalid file?")
         }
     }
+
 
     private func confirmClearAll() {
         let a = UIAlertController(title: "Delete All Data?",

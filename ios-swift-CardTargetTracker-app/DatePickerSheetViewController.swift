@@ -16,6 +16,8 @@ final class DatePickerSheetViewController: UIViewController {
     private let datePicker: UIDatePicker = {
         let dp = UIDatePicker()
         dp.datePickerMode = .date
+        dp.preferredDatePickerStyle = .wheels
+        dp.translatesAutoresizingMaskIntoConstraints = false
         if #available(iOS 14.0, *) { dp.preferredDatePickerStyle = .inline }
         return dp
     }()

@@ -9,7 +9,6 @@ import UIKit
 
 class AddTransactionViewController: UITableViewController {
 
-    // MARK: - Init
     private let cardId: UUID
     private var editingTransaction: Transaction?
     var onTransactionSaved: (() -> Void)?
@@ -22,7 +21,6 @@ class AddTransactionViewController: UITableViewController {
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    // MARK: - Model State
     private var amountCents: Int = 0
     private var selectedCategory: Category = Category.allCases.first ?? .others
     private var selectedDate: Date = Date()
@@ -30,12 +28,10 @@ class AddTransactionViewController: UITableViewController {
 
     private let categories = Category.allCases
 
-    // MARK: - UI
     private let amountField = UITextField()
     private let noteField = UITextField()
     private let dateButton = UIButton(type: .system)
 
-    // Horizontal scroller
     private lazy var categoryLayout: UICollectionViewFlowLayout = {
         let l = UICollectionViewFlowLayout()
         l.scrollDirection = .horizontal
@@ -95,7 +91,6 @@ class AddTransactionViewController: UITableViewController {
         tableView.keyboardDismissMode = .onDrag
     }
 
-    // MARK: - Table
     override func numberOfSections(in tableView: UITableView) -> Int { 4 }
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -118,7 +113,7 @@ class AddTransactionViewController: UITableViewController {
 
         switch indexPath.section {
         case 0: // Amount
-            embed(amountField, in: cell)
+            embed(amountField, in: cell, height: 44)
         case 1: // Category scroller
             embed(categoryCollection, in: cell, height: 52)
             // Preselect current category (after first layout pass)
@@ -131,7 +126,7 @@ class AddTransactionViewController: UITableViewController {
         case 2: // Date button
             embed(dateButton, in: cell, height: 44)
         default: // Note
-            embed(noteField, in: cell)
+            embed(noteField, in: cell, height: 44)
         }
         return cell
     }
@@ -140,7 +135,6 @@ class AddTransactionViewController: UITableViewController {
         if indexPath.section == 2 { presentDatePicker() }
     }
 
-    // MARK: - Actions
     @objc private func close() { dismiss(animated: true) }
 
     @objc private func save() {
@@ -193,9 +187,8 @@ class AddTransactionViewController: UITableViewController {
     private func presentDatePicker() {
         let pickerVC = DatePickerSheetViewController()
         pickerVC.initialDate = selectedDate
-        pickerVC.modalPresentationStyle = UIModalPresentationStyle.pageSheet  // <- explicit
-
-        pickerVC.onPicked = { [weak self] (date: Date) in                     // <- typed
+        pickerVC.modalPresentationStyle = UIModalPresentationStyle.pageSheet
+        pickerVC.onPicked = { [weak self] (date: Date) in
             guard let self = self else { return }
             self.selectedDate = date
             self.updateDateButtonTitle()
@@ -203,8 +196,7 @@ class AddTransactionViewController: UITableViewController {
         present(pickerVC, animated: true)
     }
 
-
-    // MARK: - Helpers
+    
     private func styleDateButton() {
         dateButton.configuration = .plain()
         dateButton.contentHorizontalAlignment = .leading
@@ -253,7 +245,6 @@ class AddTransactionViewController: UITableViewController {
     @objc private func dismissKeyboard() { view.endEditing(true) }
 }
 
-// MARK: - Category Scroller
 extension AddTransactionViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         categories.count
@@ -269,7 +260,6 @@ extension AddTransactionViewController: UICollectionViewDataSource, UICollection
     }
 }
 
-// MARK: - Pill Cell
 private final class CategoryPillCell: UICollectionViewCell {
     private let label = UILabel()
     override var isSelected: Bool { didSet { applyStyle() } }

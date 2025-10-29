@@ -12,7 +12,6 @@ final class AddCardViewController: UITableViewController {
     
     var onCardSaved: (() -> Void)?
 
-    // MARK: - UI: Basics
     private let nameField = UITextField()
     private let targetField = UITextField()
 
@@ -321,7 +320,6 @@ final class AddCardViewController: UITableViewController {
     }
     @objc private func endEditingNow() { view.endEditing(true) }
 
-    // MARK: - Sheet date pickers
     private func presentCalendarSheet(title: String, initial: Date, onDone: @escaping (Date) -> Void) {
         let alert = UIAlertController(title: title, message: nil, preferredStyle: .actionSheet)
 
@@ -362,7 +360,6 @@ final class AddCardViewController: UITableViewController {
         return Calendar.current.date(from: comps) ?? Date()
     }
 
-    // MARK: - Actions
     @objc private func onCycleChanged(_ sender: UISegmentedControl) {
         let s = Section.cycle.rawValue
         let current = tableView.numberOfRows(inSection: s)
@@ -443,7 +440,6 @@ final class AddCardViewController: UITableViewController {
         }
     }
 
-    // MARK: - Save / Close
     @objc private func close() { dismiss(animated: true) }
 
     @objc private func save() {
