@@ -10,47 +10,45 @@ import Foundation
 
 class CardsViewController: UITableViewController {
     private var data: [Card] = []
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         title = "Cards"
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addCard))
-        
+        tableView.backgroundColor = .systemGroupedBackground
+
+        let addItem = UIBarButtonItem(barButtonSystemItem: .add,
+                                      target: self,
+                                      action: #selector(addCard))
+        addItem.tintColor = .systemBlue
+        navigationItem.rightBarButtonItems = [ addItem,editButtonItem]
+        tableView.allowsSelectionDuringEditing = true
+        NotificationCenter.default.addObserver(forName: .dataStoreDidChange, object: nil, queue: .main) { [weak self] _ in
+            self?.reloadData()
+        }
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         data = TransactionManager.shared.allCards()
         tableView.reloadData()
     }
-    
-    
+
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+        tableView.setEditing(editing, animated: animated)
+        tableView.reloadData()
+    }
+
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         data.count
     }
-    
-//    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let c = data[indexPath.row]
-//        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-//        var cfg = UIListContentConfiguration.subtitleCell()
-//        cfg.text = c.name
-//        let spent = TransactionManager.shared.spentForCard(c.id, in: PeriodCalculator.window(preset: .thisMonth))
-//        cfg.secondaryText = "\(Money.toString(cents: spent)) / \(Money.toString(cents: c.targetCents))"
-//        cell.contentConfiguration = cfg
-//        cell.accessoryType = .disclosureIndicator
-//        return cell
-//    }
-    
-    
-    
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let id = "cardCell2"
         let cell = tableView.dequeueReusableCell(withIdentifier: id) ?? UITableViewCell(style: .default, reuseIdentifier: id)
         cell.selectionStyle = .none
         cell.backgroundColor = .clear
-        tableView.backgroundColor = .systemGroupedBackground
 
         // build once
         let containerTag = 9000
@@ -117,13 +115,11 @@ class CardsViewController: UITableViewController {
             ])
         }
 
-        // configure values
         let card = data[indexPath.row]
-        let window = BillingCycle.window(for: card)  // per-card accurate window
+        let window = BillingCycle.window(for: card)
         let spent = TransactionManager.shared.spentForCard(card.id, in: window)
         let daysLeft = BillingCycle.daysLeft(for: card)
-//        let spent = TransactionManager.shared.spentForCard(card.id, in: PeriodCalculator.window(preset: .thisMonth))
-//        let daysLeft = Self.daysLeftInMonth()
+
         nameLabel.text = card.name
         daysLabel.text = "\(daysLeft) days left"
         amountsLabel.text = "\(Money.toString(cents: spent)) / \(Money.toString(cents: card.targetCents))"
@@ -132,50 +128,95 @@ class CardsViewController: UITableViewController {
         percentLabel.text = "\(Int(round(pct*100)))%"
         percentLabel.textColor = pct >= 1 ? .systemGreen : .systemBlue
         progress.progressTintColor = pct >= 1 ? .systemGray2 : .systemGreen
+
         return cell
     }
 
-    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        show(CardDetailViewController(card: data[indexPath.row]), sender: self)
+        let card = data[indexPath.row]
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        if isEditing {
+            let editVC = AddCardViewController(cardToEdit: card)
+            editVC.onCardSaved = { [weak self] in self?.reloadData() }
+
+            if let sheet = editVC.sheetPresentationController {
+                sheet.detents = [.medium(), .large()]
+                sheet.prefersGrabberVisible = true
+                sheet.preferredCornerRadius = 24
+            }
+            present(UINavigationController(rootViewController: editVC), animated: true)
+        } else {
+            show(CardDetailViewController(card: card), sender: self)
+        }
     }
-    
-    
+
+    override func tableView(_ tableView: UITableView,
+                            trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath)
+    -> UISwipeActionsConfiguration? {
+        guard isEditing else { return nil }
+        let delete = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, done in
+            self?.deleteCard(at: indexPath)
+            done(true)
+        }
+        return UISwipeActionsConfiguration(actions: [delete])
+    }
+
+    override func tableView(_ tableView: UITableView,
+                            commit editingStyle: UITableViewCell.EditingStyle,
+                            forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            deleteCard(at: indexPath)
+        }
+    }
+
     private func reloadData() {
         data = StorageManager.shared.loadCards() ?? []
         tableView.reloadData()
     }
-    
+
     @objc private func addCard() {
         let vc = AddCardViewController()
-        
-        vc.onCardSaved = { [weak self] in
-            self?.reloadData()
-        }
-        
+        vc.onCardSaved = { [weak self] in self?.reloadData() }
+
         if let sheet = vc.sheetPresentationController {
             sheet.detents = [.medium(), .large()]
             sheet.prefersGrabberVisible = true
+            sheet.preferredCornerRadius = 24
         }
         let nav = UINavigationController(rootViewController: vc)
-//        present(nav, animated: true)
         present(nav, animated: true)
     }
-    
-    private static func daysLeftInMonth(calendar: Calendar = .current) -> Int {
-        let now = Date()
-        let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: now))!
-        let startNextMonth = calendar.date(byAdding: .month, value: 1, to: startOfMonth)!
-        let endThisMonth = calendar.date(byAdding: .day, value: -1, to: startNextMonth)!
-        let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: now),
-                                           to: calendar.startOfDay(for: endThisMonth)).day ?? 0
-        return max(0, days + 1)
+
+    private func deleteCard(at indexPath: IndexPath) {
+        let removed = data.remove(at: indexPath.row)
+        StorageManager.shared.saveCards(data)
+        TransactionManager.shared.deleteAllTransactions(forCard: removed.id)
+        tableView.deleteRows(at: [indexPath], with: .automatic)
     }
-    
+
+    // MARK: - UI Helpers
+    private func makeBluePlusItem() -> UIBarButtonItem {
+        let btn = UIButton(type: .system)
+        btn.setImage(UIImage(systemName: "plus"), for: .normal)
+        btn.tintColor = .white
+        btn.backgroundColor = .systemBlue
+        btn.frame = CGRect(x: 0, y: 0, width: 32, height: 32)
+        btn.layer.cornerRadius = 16
+        btn.addTarget(self, action: #selector(addCard), for: .touchUpInside)
+        return UIBarButtonItem(customView: btn)
+    }
 }
 
-
-//TODO: add the edit button in the navagion bar to sawp left to delet and to tap on top to edit the card same foe the transacation
-
 //TODO: change the add card to the strart day and enter the cycle by hand by defalu is 30 days
+
+//TODO: make the tranctaicon tape selelction look nice in the ui
+//TODO: Set up the seeting in the have a inport json and export json and have a drak mode and light mode stwich and have a stwich for the notifications for all the notification which is the highter order for all the notifaction
+
+//TODO: add on one or two Singapre cards model?
+
+
+
+//TODO: if have time the settings can have a cumtize the backguround of the app and so on so fort or custemer the app teame maybe?
+//TODO: The day layout can have a sort by the differ category and the catgory can have a tbale for that
 

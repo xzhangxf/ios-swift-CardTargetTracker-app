@@ -63,6 +63,37 @@ class TransactionManager {
     func deleteTransaction(id: UUID) {
         transactions.removeAll { $0.id == id }; persist()
     }
+    
+    func deleteAllTransactions(forCard cardId: UUID) {
+        let before = transactions.count
+        transactions.removeAll { $0.cardId == cardId }
+        if transactions.count != before {
+            persist()
+        }
+    }
+    
+    @discardableResult
+    func deleteAllData() -> (cards: Int, transactions: Int) {
+        let removedCards = cards.count
+        let removedTx = transactions.count
+
+        if removedCards > 0 { cards.removeAll() }
+        if removedTx > 0 { transactions.removeAll() }
+
+        if removedCards > 0 || removedTx > 0 {
+            persist()
+        }
+        return (removedCards, removedTx)
+    }
+    
+//    @discardableResult
+//    func deleteAllTransactions(forCard cardId: UUID) -> Int {
+//        let before = transactions.count
+//        transactions.removeAll { $0.cardId == cardId }
+//        let removed = before - transactions.count
+//        if removed > 0 { persist() }     // write back to storage
+//        return removed
+//    }
 
     func persist() {
         StorageManager.shared.saveCards(cards)

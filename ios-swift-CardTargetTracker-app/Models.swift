@@ -34,14 +34,11 @@ enum BillingCycle {
                 let startNextMonth = calendar.date(byAdding: .month, value: 1, to: startOfMonth)!
                 return DateInterval(start: startOfMonth, end: startNextMonth)
             } else {
-                // Statement cycle: start at day `startDay` of "current window"
-                // If today is before this month's `startDay`, window started last month; else starts this month.
                 let thisMonthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: ref))!
                 let thisMonthStartDay = calendar.date(bySetting: .day, value: min(startDay, maxDay(inMonthStarting: thisMonthStart, cal: calendar)), of: thisMonthStart)!
 
                 let cycleStart: Date
                 if ref < thisMonthStartDay {
-                    // use previous month
                     let prevMonthStart = calendar.date(byAdding: .month, value: -1, to: thisMonthStart)!
                     cycleStart = calendar.date(
                         bySetting: .day,
@@ -56,7 +53,6 @@ enum BillingCycle {
                 return DateInterval(start: cycleStart, end: nextMonthFromCycleStart)
             }
         case .custom(let days, let startDate):
-            // Optional: If you use this case, treat as a rolling fixed-length window
             let start = mostRecentBoundary(from: startDate, stepDays: days, ref: ref, cal: calendar)
             let end = calendar.date(byAdding: .day, value: days, to: start)!
             return DateInterval(start: start, end: end)

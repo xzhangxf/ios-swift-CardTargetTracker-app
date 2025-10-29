@@ -44,6 +44,8 @@ final class AddCardViewController: UITableViewController {
         super.init(style: .insetGrouped)
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    
+    
 
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -235,7 +237,7 @@ final class AddCardViewController: UITableViewController {
         return cell
     }
 
-    // MARK: - Selection: present calendars in a sheet
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch Section(rawValue: indexPath.section)! {
         case .cycle:
@@ -283,7 +285,6 @@ final class AddCardViewController: UITableViewController {
         }
     }
 
-    // MARK: - UI helpers
     private func addField(_ field: UITextField, into cell: UITableViewCell) {
         field.translatesAutoresizingMaskIntoConstraints = false
         field.backgroundColor = .secondarySystemGroupedBackground
@@ -403,14 +404,13 @@ final class AddCardViewController: UITableViewController {
         refreshPreview()
     }
 
-    // MARK: - Label/Preview Refresh
     private func refreshCycleLabel() {
         if cycleSegment.selectedSegmentIndex == 0 {
             closingDayLabel.text = "—"
         } else {
             let closing = Int(closingDayStepper.value)
             let start = (closing == 31) ? 1 : (closing + 1)
-            closingDayLabel.text = "\(closing)  (start on \(start))"
+            closingDayLabel.text = "\(closing)start on\(start)"
         }
     }
 
@@ -545,6 +545,7 @@ final class AddCardViewController: UITableViewController {
         }
         return raw
     }
+    
 }
 
 

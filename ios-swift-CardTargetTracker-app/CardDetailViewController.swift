@@ -12,6 +12,8 @@ class CardDetailViewController: UITableViewController {
     
     private var card: Card
     private var tx: [Transaction] = []
+    private var isManaging = false
+    private var editItem: UIBarButtonItem!
     
     init(card: Card) {
         self.card = card
@@ -34,12 +36,12 @@ class CardDetailViewController: UITableViewController {
         // Put custom button into the nav bar
         let add = UIBarButtonItem(customView: addButton1)
 
-        let edit = UIBarButtonItem(title: "Edit",
+        editItem = UIBarButtonItem(title: "Edit",
                                    style: .plain,
                                    target: self,
-                                   action: #selector(onEdit))
+                                   action: #selector(toggleManageMode))
         add.tintColor = .systemBlue
-        navigationItem.rightBarButtonItems = [add, edit]
+        navigationItem.rightBarButtonItems = [add, editItem]
 //        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(onEdit))
         let addButton = UIButton(type: .system)
         addButton.setTitle("Add Transaction", for: .normal)
@@ -47,6 +49,7 @@ class CardDetailViewController: UITableViewController {
         tableView.tableFooterView = addButton
         addButton.frame = CGRect(x: 0, y: 0, width: tableView.bounds.width, height: 56)
         tableView.tableFooterView = addButton
+        tableView.allowsSelectionDuringEditing = true
     }
     
     
@@ -55,9 +58,15 @@ class CardDetailViewController: UITableViewController {
         reloadData()
     }
     
-    
     private func reloadData() {
         tx = TransactionManager.shared.transactions(forCard: card.id).sorted { $0.date > $1.date }
+        tableView.reloadData()
+    }
+    
+    
+    @objc private func toggleEditMode(){
+        isManaging.toggle()
+        navigationItem.rightBarButtonItem?.title = isManaging ? "Done" : "Edit"
         tableView.reloadData()
     }
     
@@ -74,20 +83,29 @@ class CardDetailViewController: UITableViewController {
         df.dateStyle = .medium; df.timeStyle = .none
         cfg.secondaryText = "\(t.category.rawValue.capitalized) · \(df.string(from: t.date))"
         cell.contentConfiguration = cfg
-        cell.accessoryType = .disclosureIndicator
+        //cell.accessoryType = .disclosureIndicator
+        cell.accessoryType = isManaging ? .none : .disclosureIndicator
         return cell
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let t = tx[indexPath.row]
-        let vc = TransactionDetailViewController(transaction: t)
-        navigationController?.pushViewController(vc, animated: true)
+        tableView.deselectRow(at: indexPath, animated: true)
+        if isManaging {
+            let vc = AddTransactionViewController(cardId: card.id, editingTransaction: t)
+                       vc.onTransactionSaved = { [weak self] in self?.reloadData() }
+                       present(UINavigationController(rootViewController: vc), animated: true)
+        } else {
+            let vc = TransactionDetailViewController(transaction: t)
+            navigationController?.pushViewController(vc, animated: true)
+        }
     }
     
     
     override func tableView(_ tableView: UITableView,
                             trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath)
     -> UISwipeActionsConfiguration? {
+        guard isManaging else { return nil }
         let delete = UIContextualAction(style: .destructive, title: "Delete") { _, _, done in
             let id = self.tx[indexPath.row].id
             TransactionManager.shared.deleteTransaction(id: id)
@@ -102,14 +120,17 @@ class CardDetailViewController: UITableViewController {
    @objc private func onAddTransaction() {
         let vc = AddTransactionViewController(cardId: card.id)
        vc.onTransactionSaved = { [weak self] in
-           self?.reloadData() 
+           self?.reloadData()
        }
         present(UINavigationController(rootViewController: vc), animated: true)
     }
 
-    @objc private func onEdit() {
-        let vc = AddCardViewController(cardToEdit: card)
-        
-        present(UINavigationController(rootViewController: vc), animated: true)
+    @objc private func toggleManageMode() {
+        isManaging.toggle()
+        editItem.title = isManaging ? "Done" : "Edit"
+        tableView.reloadData()
+//        let vc = AddCardViewController(cardToEdit: card)
+//        
+//        present(UINavigationController(rootViewController: vc), animated: true)
     }
 }
