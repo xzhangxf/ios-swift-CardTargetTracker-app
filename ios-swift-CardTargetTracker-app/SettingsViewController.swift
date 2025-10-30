@@ -113,7 +113,7 @@ final class SettingsViewController: UITableViewController, UIDocumentPickerDeleg
     private func exportJSON() {
         let backup = Backup.makeFromCurrentStore()
         guard let data = try? JSONEncoder.exportEncoder.encode(backup) else {
-            toast("Failed to export.")
+            print("Failed to export.")
             return
         }
         let fmt = DateFormatter(); fmt.dateFormat = "yyyyMMdd_HHmmss"
@@ -124,7 +124,7 @@ final class SettingsViewController: UITableViewController, UIDocumentPickerDeleg
             let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
             present(vc, animated: true)
         } catch {
-            print("Write file failed.\(error)")
+            print("Write file failed.")
         }
     }
 

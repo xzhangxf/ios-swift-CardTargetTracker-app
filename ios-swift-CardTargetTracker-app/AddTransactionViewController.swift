@@ -48,11 +48,7 @@ class AddTransactionViewController: UITableViewController {
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .close, target: self, action: #selector(close)
         )
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: "Save", style: .done, target: self, action: #selector(save)
-        )
-
-        // Preload values if editing
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(save))
         if let t = editingTransaction {
             amountCents = t.amountCents
             selectedCategory = t.category
@@ -114,9 +110,8 @@ class AddTransactionViewController: UITableViewController {
         switch indexPath.section {
         case 0: // Amount
             embed(amountField, in: cell, height: 44)
-        case 1: // Category scroller
+        case 1: // Category
             embed(categoryCollection, in: cell, height: 52)
-            // Preselect current category (after first layout pass)
             DispatchQueue.main.async { [weak self] in
                 guard let self = self,
                       let idx = self.categories.firstIndex(of: self.selectedCategory) else { return }
@@ -151,14 +146,12 @@ class AddTransactionViewController: UITableViewController {
         noteText = noteField.text?.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if var t = editingTransaction {
-            // Update existing
             t.amountCents = amountCents
             t.category = selectedCategory
             t.date = selectedDate
             t.note = noteText
             TransactionManager.shared.updateTransaction(t)
         } else {
-            // Create new
             let tx = Transaction(
                 id: UUID(),
                 cardId: cardId,
@@ -237,7 +230,7 @@ class AddTransactionViewController: UITableViewController {
         let tb = UIToolbar()
         tb.items = [
             UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
-            UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(dismissKeyboard))
+            UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissKeyboard))
         ]
         tb.sizeToFit()
         return tb
