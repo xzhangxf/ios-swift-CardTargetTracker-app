@@ -23,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         DispatchQueue.main.async {
             UNUserNotificationCenter.current().delegate = self
         }
-        Preload.seedIfNeeded() // set up the prebuild
+        Preload.seedIfNeeded() // set up the prebuild and it only run onece
         return true
     }
     

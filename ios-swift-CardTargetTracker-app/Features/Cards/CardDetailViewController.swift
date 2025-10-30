@@ -9,7 +9,6 @@ import UIKit
 
 class CardDetailViewController: UITableViewController {
     
-    
     private var card: Card
     private var tx: [Transaction] = []
     private var isManaging = false

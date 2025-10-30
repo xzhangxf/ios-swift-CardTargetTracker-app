@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class CategoriesViewController: UITableViewController {
+class CategoriesViewController: UITableViewController {
     private var rows: [(category: Category, cents: Int)] = []
 
     override func viewDidLoad() {

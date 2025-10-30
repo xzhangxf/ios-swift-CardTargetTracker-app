@@ -9,9 +9,7 @@ import Foundation
 
 class StorageManager {
     static let shared = StorageManager()
-    private init(){
-    }
-    
+    private init(){}
     //File System (FileManager): For storing larger files or custom data formats, you can directly interact with the app's sandboxed directories, such as the Documents directory for user-generated content or the Caches directory for temporary data.
     private let cardsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("cards.json")
     private let txURL    = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("transactions.json")

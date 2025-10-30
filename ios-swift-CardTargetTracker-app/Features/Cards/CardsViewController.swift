@@ -9,8 +9,8 @@ import UIKit
 import Foundation
 
 class CardsViewController: UITableViewController {
+   
     private var data: [Card] = []
-
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Cards"
@@ -192,7 +192,6 @@ class CardsViewController: UITableViewController {
         tableView.deleteRows(at: [indexPath], with: .automatic)
     }
 
-    // MARK: - UI Helpers
     private func makeBluePlusItem() -> UIBarButtonItem {
         let btn = UIButton(type: .system)
         btn.setImage(UIImage(systemName: "plus"), for: .normal)

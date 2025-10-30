@@ -24,7 +24,6 @@ enum CycleType: Codable, Hashable {
 }
 
 enum BillingCycle {
-    /// Returns the current cycle window for the given card relative to `ref` date.
     static func window(for card: Card, ref: Date = Date(), calendar: Calendar = .current) -> DateInterval {
         switch card.cycle {
         case .monthly(let startDay):
@@ -59,7 +58,6 @@ enum BillingCycle {
         }
     }
 
-    /// Inclusive day-count remaining until the window end (so 0 means "ends today").
     static func daysLeft(for card: Card, ref: Date = Date(), calendar: Calendar = .current) -> Int {
         let w = window(for: card, ref: ref, calendar: calendar)
         // days remaining = number of midnights from today to (end - 1 second)

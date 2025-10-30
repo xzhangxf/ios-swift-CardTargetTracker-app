@@ -10,8 +10,6 @@ import UIKit
 class TransactionDetailViewController: UITableViewController, UIPickerViewDataSource, UIPickerViewDelegate, UITextFieldDelegate {
 
     private var transaction: Transaction
-
-    // UI
     private let amountField = UITextField()
     private let categoryField = UITextField()
     private let datePicker = UIDatePicker()
@@ -37,14 +35,12 @@ class TransactionDetailViewController: UITableViewController, UIPickerViewDataSo
             action: #selector(save)
         )
 
-        // Amount
         amountField.placeholder = "Amount"
         amountField.keyboardType = .decimalPad
         amountField.clearButtonMode = .whileEditing
         amountField.text = amountString(fromCents: transaction.amountCents)
         amountField.delegate = self
 
-        // Category
         categoryField.placeholder = "Category"
         categoryField.inputView = categoryPicker
         categoryPicker.dataSource = self
@@ -54,12 +50,10 @@ class TransactionDetailViewController: UITableViewController, UIPickerViewDataSo
             categoryField.text = categories[idx].rawValue.capitalized
         }
 
-        // Date
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .inline
         datePicker.date = transaction.date
 
-        // Note
         noteField.placeholder = "Note (optional)"
         noteField.text = transaction.note
         noteField.clearButtonMode = .whileEditing
@@ -121,7 +115,6 @@ class TransactionDetailViewController: UITableViewController, UIPickerViewDataSo
         ])
     }
 
-    // MARK: - Picker
     func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         categories.count
@@ -134,7 +127,6 @@ class TransactionDetailViewController: UITableViewController, UIPickerViewDataSo
         categoryField.resignFirstResponder()
     }
 
-    // MARK: - Save
     @objc private func save() {
         // Amount -> cents
         let cleaned = (amountField.text ?? "")
@@ -147,12 +139,9 @@ class TransactionDetailViewController: UITableViewController, UIPickerViewDataSo
             return
         }
         let cents = Int((amount * 100.0).rounded())
-
-        // Category
         let catIdx = categoryPicker.selectedRow(inComponent: 0)
         let cat = categories[catIdx]
 
-        // Build updated model
         var updated = transaction
         updated.amountCents = cents
         updated.category = cat
@@ -163,9 +152,7 @@ class TransactionDetailViewController: UITableViewController, UIPickerViewDataSo
         navigationController?.popViewController(animated: true)
     }
 
-    // MARK: - Helpers
     private func amountString(fromCents cents: Int) -> String {
-        // Render as plain number (easier to edit). If you prefer “$1,234.56”, plug in CurrencyFormatter here.
         String(format: "%.2f", Double(cents) / 100.0)
     }
 
@@ -175,7 +162,6 @@ class TransactionDetailViewController: UITableViewController, UIPickerViewDataSo
         present(a, animated: true)
     }
 
-    // Dismiss pickers when tapping return on text fields
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder(); return true
     }

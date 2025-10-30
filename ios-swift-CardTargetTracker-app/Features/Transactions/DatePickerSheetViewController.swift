@@ -7,8 +7,7 @@
 
 import UIKit
 
-final class DatePickerSheetViewController: UIViewController {
-    // Public
+class DatePickerSheetViewController: UIViewController {
     var initialDate: Date = Date()
     var onPicked: ((Date) -> Void)?
 
