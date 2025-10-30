@@ -211,4 +211,3 @@ class CardsViewController: UITableViewController {
 
 //TODO: if have time the settings can have a cumtize the backguround of the app and so on so fort or custemer the app teame maybe?
 //TODO: The day layout can have a sort by the differ category and the catgory can have a tbale for that
-

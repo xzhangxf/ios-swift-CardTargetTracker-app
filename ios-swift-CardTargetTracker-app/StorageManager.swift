@@ -10,7 +10,6 @@ import Foundation
 class StorageManager {
     static let shared = StorageManager()
     private init(){
-        //TODO: MAY NEED TO init it
     }
     
     //File System (FileManager): For storing larger files or custom data formats, you can directly interact with the app's sandboxed directories, such as the Documents directory for user-generated content or the Caches directory for temporary data.

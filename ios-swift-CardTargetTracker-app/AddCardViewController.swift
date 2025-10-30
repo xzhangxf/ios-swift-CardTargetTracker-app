@@ -306,8 +306,9 @@ class AddCardViewController: UITableViewController {
         
         let startDay: Int
         if isStatementMode {
-            let comps = Calendar.current.dateComponents([.day], from: statementDatePicker.date)
-            startDay = comps.day ?? 1
+//            let comps = Calendar.current.dateComponents([.day], from: statementDatePicker.date)
+//            startDay = comps.day ?? 1
+            startDay = max(1, min(31, selectedDay))
         } else {
             startDay = 1
         }
@@ -466,12 +467,27 @@ enum NotificationScheduler {
             content.title = "Card Reminder"
             content.body = "\(title): cycle ends soon"
             content.sound = .default
+            content.userInfo = ["cardId": card.id.uuidString]
 
             let comps = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
             let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
 
             let req = UNNotificationRequest(identifier: card.id.uuidString, content: content, trigger: trigger)
             UNUserNotificationCenter.current().add(req)
+//            UNUserNotificationCenter print debug
+//            let formatter = DateFormatter()
+//            formatter.timeZone = .current
+//            formatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZZ"
+//
+//            UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+//                for req in requests {
+//                    if let trigger = req.trigger as? UNCalendarNotificationTrigger {
+//                        if let fireDate = trigger.nextTriggerDate() {
+//                            print("/\(req.identifier): \(formatter.string(from: fireDate))")
+//                        }
+//                    }
+//                }
+//            }
         }
     }
 }
