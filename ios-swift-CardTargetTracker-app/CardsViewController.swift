@@ -204,10 +204,3 @@ class CardsViewController: UITableViewController {
         return UIBarButtonItem(customView: btn)
     }
 }
-
-//TODO: make the tranctaicon tape selelction look nice in the ui
-//TODO: Set up the seeting in the have a inport json and export json and have a drak mode and light mode stwich and have a stwich for the notifications for all the notification which is the highter order for all the notifaction
-
-
-//TODO: if have time the settings can have a cumtize the backguround of the app and so on so fort or custemer the app teame maybe?
-//TODO: The day layout can have a sort by the differ category and the catgory can have a tbale for that
