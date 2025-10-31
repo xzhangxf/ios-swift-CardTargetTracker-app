@@ -408,8 +408,8 @@ extension AddCardViewController: UIPickerViewDataSource, UIPickerViewDelegate {
 
        func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
            if pickerView === monthDayPicker {
-               if component == 0 { return "\(row + 1) 月" }
-               return "\(row + 1) 日"
+               if component == 0 { return "\(row + 1) month" }
+               return "\(row + 1) day"
            }
            if pickerView === daysBeforePicker {
                let d = daysBeforeData[row]
